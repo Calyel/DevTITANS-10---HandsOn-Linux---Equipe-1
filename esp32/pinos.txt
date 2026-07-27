@@ -1,0 +1,15 @@
+=== SMARTLAMP - PINAGEM ===
+
+Componente   | Pino no ESP32
+LED          | GPIO2 (com resistor 220Ω)
+LDR          | GPIO34 (com resistor 10kΩ para GND)
+GND          | Comum
+3.3V         | Alimentação do LDR
+
+Baud Rate: 115200
+Protocolo: USB Serial
+
+Comandos suportados:
+  SET_LED X   - X entre 0 e 100
+  GET_LED     - Retorna intensidade atual
+  GET_LDR     - Retorna valor do LDR
