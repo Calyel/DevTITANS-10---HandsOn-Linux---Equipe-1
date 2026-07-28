@@ -1,0 +1,25 @@
+## Tarefa 1 — Protótipo e Firmware
+
+### Esquema de montagem
+
+![Circuito SmartLamp no Wokwi](esp32/esquema_wokwi.png)
+
+**Pinagem:**
+- LED: GPIO2 (resistor 220Ω)
+- LDR: GPIO34 (resistor 10kΩ)
+
+### Firmware
+
+O firmware `smartlamp.ino` foi desenvolvido no Arduino IDE e suporta os comandos:
+
+| Comando | Resposta |
+|---------|----------|
+| `SET_LED X` (0-100) | `RES SET_LED X` |
+| `SET_LED X` (inválido) | `RES SET_LED -1` |
+| `GET_LED` | `RES GET_LED Y` |
+| `GET_LDR` | `RES GET_LDR Z` |
+| Comando inválido | `ERR Unknown command.` |
+
+### Validação no Wokwi
+
+**Serial Monitor:**
