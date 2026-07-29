@@ -9,7 +9,7 @@
 <<<<<<< HEAD
 obj-m += ALTERE_PARA_O_ARQUIVO_DA_TASK.o
 =======
-obj-m += probe.o
+obj-m += serial_read.o
 >>>>>>> 3526aff (Versão inicial do projeto SmartLamp)
 PWD := $(CURDIR)
 
