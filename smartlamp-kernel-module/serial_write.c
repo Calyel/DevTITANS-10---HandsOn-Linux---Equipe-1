@@ -14,8 +14,8 @@ static uint usb_in, usb_out;                       // Endereços das portas de e
 static char *usb_in_buffer, *usb_out_buffer;       // Buffers de entrada e saída da USB
 static int usb_max_size;                           // Tamanho máximo de uma mensagem USB
 
-#define VENDOR_ID   0x10c4 /* Encontre o VendorID  do smartlamp */
-#define PRODUCT_ID  0xea60 /* Encontre o ProductID do smartlamp */
+#define VENDOR_ID   0x10c4  /* Silicon Labs CP210x */
+#define PRODUCT_ID  0xea60  /* CP210x UART Bridge */
 static const struct usb_device_id id_table[] = { { USB_DEVICE(VENDOR_ID, PRODUCT_ID) }, {} };
 
 static int  usb_probe(struct usb_interface *ifce, const struct usb_device_id *id); // Executado quando o dispositivo é conectado na USB
@@ -98,7 +98,10 @@ static int usb_probe(struct usb_interface *interface, const struct usb_device_id
 
     // TASK 2.2: Chame a função usb_write_serial para enviar o comando SET_LED com valor 100
     // Descomente a linha abaixo e implemente a função usb_write_serial
-    ret = usb_write_serial("SET_LED", 100);
+    ret = usb_write_serial("SET_LED", 0);
+    if(ret < 0){
+        printk(KERN_ERR "SmartLamp: Falha ao enviar comando SET_LED\n");
+    }
 
     return 0;
 }
@@ -114,23 +117,31 @@ static void usb_disconnect(struct usb_interface *interface) {
 // Exemplo de uso: usb_write_serial("SET_LED", 80);
 // Exemplo de uso: usb_write_serial("GET_LDR", 0);
 static int usb_write_serial(char *cmd, int param) {
-    int ret, actual_size, size;
+    int ret, actual_size;
 
     printk(KERN_INFO "SmartLamp: Enviando comando: %s %d\n", cmd, param);
 
-    size = snprintf(usb_out_buffer, usb_max_size, "%s %d\n", cmd, param); // montando
-
-    ret = usb_bulk_msg(smartlamp_device, usb_sndbulkpipe(smartlamp_device, usb_out),usb_out_buffer, size, &actual_size, 1000);
-    
-    if (ret){
-        printk(KERN_ERR "SmartLamp: Erro %d\n", ret);
-        return ret;
-    }
-
-    printk(KERN_INFO "SmartLamp: %d bytes enviados\n", actual_size);
     // TASK 2.2: Implemente o envio do comando para o dispositivo
     // Dica: Formate o comando no buffer usb_out_buffer e envie usando usb_bulk_msg
     // O formato esperado é: "COMANDO PARAMETRO\n"
+    sprintf(usb_out_buffer, "%s %d\n", cmd, param);
+
+    ret = usb_bulk_msg(
+    smartlamp_device,
+    usb_sndbulkpipe(smartlamp_device, usb_out),
+    usb_out_buffer,
+    strlen(usb_out_buffer),
+    &actual_size,
+    1000
+    );
+
+    if (ret) {
+        printk(KERN_ERR "SmartLamp: Erro ao enviar comando (código %d)\n", ret);
+        return -1;
+    }
+
+    printk(KERN_INFO "SmartLamp: Comando enviado com sucesso\n");
 
     return 0;
+
 }

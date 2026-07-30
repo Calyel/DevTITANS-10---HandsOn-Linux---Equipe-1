@@ -14,8 +14,8 @@ static uint usb_in, usb_out;                       // Endereços das portas de e
 static char *usb_in_buffer, *usb_out_buffer;       // Buffers de entrada e saída da USB
 static int usb_max_size;                           // Tamanho máximo de uma mensagem USB
 
-#define VENDOR_ID   SUBSTITUA_PELO_VENDORID /* Encontre o VendorID  do smartlamp */
-#define PRODUCT_ID  SUBSTITUA_PELO_PRODUCTID /* Encontre o ProductID do smartlamp */
+#define VENDOR_ID   0x10c4  /* Silicon Labs CP210x */
+#define PRODUCT_ID  0xea60  /* CP210x UART Bridge */
 static const struct usb_device_id id_table[] = { { USB_DEVICE(VENDOR_ID, PRODUCT_ID) }, {} };
 
 static int  usb_probe(struct usb_interface *ifce, const struct usb_device_id *id); // Executado quando o dispositivo é conectado na USB
@@ -155,6 +155,7 @@ static void usb_disconnect(struct usb_interface *interface) {
 // - usb_write_serial("GET_LDR", -1) deve enviar "GET_LDR\n"
 static int usb_write_serial(char *cmd, int param) {
     int ret, actual_size;
+    int size;
 
     printk(KERN_INFO "SmartLamp: Enviando comando: %s %d\n", cmd, param);
 
@@ -162,8 +163,33 @@ static int usb_write_serial(char *cmd, int param) {
     // Dica: quando param for negativo, envie apenas "COMANDO\n".
     // Quando param for 0 ou maior, envie "COMANDO PARAMETRO\n".
     // Depois, envie o buffer pela USB usando usb_bulk_msg.
+    if (param >= 0) {
+        size = snprintf(usb_out_buffer, usb_max_size,
+                        "%s %d\n", cmd, param);
+    } 
+    else {
+        size = snprintf(usb_out_buffer, usb_max_size,
+                        "%s\n", cmd);
+    }
+
+    ret = usb_bulk_msg(
+        smartlamp_device,
+        usb_sndbulkpipe(smartlamp_device, usb_out),
+        usb_out_buffer,
+        size,
+        &actual_size,
+        1000
+    );
+
+    if (ret) {
+        printk(KERN_ERR "SmartLamp: Erro ao enviar comando %d\n", ret);
+        return ret;
+    }
+
+    printk(KERN_INFO "SmartLamp: %d bytes enviados\n", actual_size);
 
     return 0;
+    
 }
 
 // Lê respostas da porta serial até encontrar uma resposta para o comando esperado.
@@ -177,6 +203,9 @@ static int usb_read_serial(char *cmd) {
     int ret, actual_size;
     int recv_size = 0;  // Quantidade de caracteres já recebidos em recv_line
     int i;
+    int value;
+    char response_cmd[50];
+
 
     printk(KERN_INFO "SmartLamp: Aguardando resposta para %s...\n", cmd);
 
@@ -195,8 +224,61 @@ static int usb_read_serial(char *cmd) {
     // - Ignore linhas que não correspondem ao comando esperado
     // - Após receber a linha correta, extraia o valor numérico e retorne
 
+
+    while (recv_size < MAX_RECV_LINE - 1) {
+
+        ret = usb_bulk_msg(
+            smartlamp_device,
+            usb_rcvbulkpipe(smartlamp_device, usb_in),
+            usb_in_buffer,
+            usb_max_size,
+            &actual_size,
+            2000
+        );
+        
+
+        if (ret < 0) {
+            printk(KERN_ERR "SmartLamp: Erro leitura USB %d\n", ret);
+            return -1;
+        }
+
+
+        for (i = 0; i < actual_size; i++) {
+
+            recv_line[recv_size++] = usb_in_buffer[i];
+
+
+            if (usb_in_buffer[i] == '\n') {
+
+                recv_line[recv_size] = '\0';
+
+
+                printk(KERN_INFO "SmartLamp: Recebido: %s",
+                       recv_line);
+
+
+                if (sscanf(recv_line, "RES %s %d", response_cmd, &value) == 2){
+
+                    if(strcmp(response_cmd, cmd) == 0){
+                        printk(KERN_INFO "SmartLamp: Valor recebido %d\n", value);
+                        return value;
+                    }
+                }
+
+
+                recv_size = 0;
+            }
+
+
+            if (recv_size >= MAX_RECV_LINE - 1)
+                return -1;
+        }
+    }
+
+
     return -1;
 }
+
 
 
 // Executado quando algum arquivo em /sys/kernel/smartlamp/{led, ldr, threshold} é lido.
@@ -218,9 +300,31 @@ static ssize_t attr_show(struct kobject *sys_obj, struct kobj_attribute *attr, c
     // Use attr_name para identificar se o usuario leu led, ldr ou threshold.
     // Para cada arquivo, envie o comando GET correspondente ao firmware
     // e use usb_read_serial("GET_...") para obter o valor retornado em buff.
+    if (strcmp(attr_name, "led") == 0) {
 
-    sprintf(buff, "%d\n", value);
-    return strlen(buff);
+        usb_write_serial("GET_LED", -1);
+        value = usb_read_serial("GET_LED");
+
+    }
+
+
+    else if (strcmp(attr_name, "ldr") == 0) {
+
+        usb_write_serial("GET_LDR", -1);
+        value = usb_read_serial("GET_LDR");
+
+    }
+
+
+    else if (strcmp(attr_name, "threshold") == 0) {
+
+        value = 0;
+
+    }
+
+
+    
+    return sprintf(buff, "%d\n", value);
 }
 
 // Executado quando algum arquivo em /sys/kernel/smartlamp/{led, ldr, threshold} recebe escrita.
@@ -253,10 +357,53 @@ static ssize_t attr_store(struct kobject *sys_obj, struct kobj_attribute *attr, 
     // Depois de enviar, leia a resposta do firmware com usb_read_serial("SET_...").
     // O arquivo ldr representa o sensor de luz e deve ser somente leitura.
 
-    if (ret < 0) {
-        printk(KERN_ALERT "SmartLamp: erro ao setar o valor do %s.\n", attr_name);
-        return -EACCES;
+
+    if(strcmp(attr_name, "led") == 0) {
+
+
+        usb_write_serial("SET_LED", value);
+
+        ret = usb_read_serial("SET_LED");
+
+
+        if(ret != 1) {
+            printk(KERN_ERR
+            "SmartLamp: erro SET_LED\n");
+
+            return -EACCES;
+        }
+
     }
 
-    return strlen(buff);
+
+
+    else if(strcmp(attr_name, "ldr") == 0) {
+
+        printk(KERN_ALERT
+        "SmartLamp: LDR somente leitura\n");
+
+        return -EACCES;
+
+    }
+
+
+
+    else if(strcmp(attr_name, "threshold") == 0) {
+
+        printk(KERN_INFO
+        "SmartLamp: threshold recebido %ld\n",
+        value);
+
+    }
+
+    //if (ret < 0) {
+    //    printk(KERN_ALERT "SmartLamp: erro ao setar o valor do %s.\n", attr_name);
+    //    return -EACCES;
+    //}
+
+    //return strlen(buff);
+
+
+
+    return count;
 }

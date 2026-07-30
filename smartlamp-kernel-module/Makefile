@@ -6,11 +6,9 @@
 #   Tarefa 2.3: obj-m += serial_read_2025.o
 #   Tarefa 2.4: obj-m += sysfs_2025.o
 #   Tarefa 3.1: obj-m += test_driver.o
-<<<<<<< HEAD
-obj-m += ALTERE_PARA_O_ARQUIVO_DA_TASK.o
-=======
+
 obj-m += probe.o
->>>>>>> 3526aff (Versão inicial do projeto SmartLamp)
+
 PWD := $(CURDIR)
 
 all:

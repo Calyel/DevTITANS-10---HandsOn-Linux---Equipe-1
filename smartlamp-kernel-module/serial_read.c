@@ -15,9 +15,8 @@ static uint usb_in, usb_out;                       // Endereços das portas de e
 static char *usb_in_buffer, *usb_out_buffer;       // Buffers de entrada e saída da USB
 static int usb_max_size;                           // Tamanho máximo de uma mensagem USB
 
-<<<<<<< HEAD
-#define VENDOR_ID   SUBSTITUA_PELO_VENDORID /* Encontre o VendorID  do smartlamp */
-#define PRODUCT_ID  SUBSTITUA_PELO_PRODUCTID /* Encontre o ProductID do smartlamp */
+#define VENDOR_ID   0x10c4  /* Silicon Labs CP210x */
+#define PRODUCT_ID  0xea60  /* CP210x UART Bridge */
 static const struct usb_device_id id_table[] = { { USB_DEVICE(VENDOR_ID, PRODUCT_ID) }, {} };
 
 static int  usb_probe(struct usb_interface *ifce, const struct usb_device_id *id); // Executado quando o dispositivo é conectado na USB
@@ -38,24 +37,6 @@ static int smartlamp_config_serial(struct usb_device *dev)
     //    bmRequestType: 0x41 (Vendor, Host-to-Device, Interface)
     //    bRequest: 0x00 (CP210X_IFC_ENABLE)
     //    wValue: 0x0001 (UART Enable)
-=======
-#define VENDOR_ID   0x10c4  /* Silicon Labs CP210x */
-#define PRODUCT_ID  0xea60  /* CP210x UART Bridge */
-static const struct usb_device_id id_table[] = { { USB_DEVICE(VENDOR_ID, PRODUCT_ID) }, {} };
-
-static int  usb_probe(struct usb_interface *ifce, const struct usb_device_id *id);
-static void usb_disconnect(struct usb_interface *ifce);
-static int  usb_write_serial(char *cmd, int param);
-static int  usb_read_serial(void);
-
-static int smartlamp_config_serial(struct usb_device *dev)
-{
-    int ret;
-    u32 baudrate = 115200; // Baud rate do ESP32
-
-    printk(KERN_INFO "SmartLamp: Configurando a porta serial...\n");
-
->>>>>>> 3526aff (Versão inicial do projeto SmartLamp)
     ret = usb_control_msg(dev, usb_sndctrlpipe(dev, 0),
                           0x00, 0x41, 0x0001, 0, NULL, 0, 1000);
     if (ret)
@@ -64,12 +45,9 @@ static int smartlamp_config_serial(struct usb_device *dev)
         return ret;
     }
 
-<<<<<<< HEAD
     // 2. Define o baud rate
     //    Comando específico do vendor Silicon Labs (CP210X_SET_BAUDRATE)
     //    bRequest: 0x1E (CP210X_SET_BAUDRATE)
-=======
->>>>>>> 3526aff (Versão inicial do projeto SmartLamp)
     ret = usb_control_msg(dev, usb_sndctrlpipe(dev, 0),
                           0x1E, 0x41, 0, 0, &baudrate, sizeof(baudrate), 1000);
     if (ret < 0)
@@ -86,35 +64,22 @@ MODULE_DEVICE_TABLE(usb, id_table);
 bool ignore = true;
 
 static struct usb_driver smartlamp_driver = {
-<<<<<<< HEAD
     .name        = "smartlamp",     // Nome do driver
     .probe       = usb_probe,       // Executado quando o dispositivo é conectado na USB
     .disconnect  = usb_disconnect,  // Executado quando o dispositivo é desconectado na USB
     .id_table    = id_table,        // Tabela com o VendorID e ProductID do dispositivo
-=======
-    .name        = "smartlamp",
-    .probe       = usb_probe,
-    .disconnect  = usb_disconnect,
-    .id_table    = id_table,
->>>>>>> 3526aff (Versão inicial do projeto SmartLamp)
 };
 
 module_usb_driver(smartlamp_driver);
 
-<<<<<<< HEAD
 // Executado quando o dispositivo é conectado na USB
-=======
->>>>>>> 3526aff (Versão inicial do projeto SmartLamp)
 static int usb_probe(struct usb_interface *interface, const struct usb_device_id *id) {
     struct usb_endpoint_descriptor *usb_endpoint_in, *usb_endpoint_out;
     int ret;
 
     printk(KERN_INFO "SmartLamp: Dispositivo conectado ...\n");
 
-<<<<<<< HEAD
     // Detecta portas e aloca buffers de entrada e saída de dados na USB
-=======
->>>>>>> 3526aff (Versão inicial do projeto SmartLamp)
     smartlamp_device = interface_to_usbdev(interface);
     ignore =  usb_find_common_endpoints(interface->cur_altsetting, &usb_endpoint_in, &usb_endpoint_out, NULL, NULL);
     usb_max_size = usb_endpoint_maxp(usb_endpoint_in);
@@ -123,10 +88,7 @@ static int usb_probe(struct usb_interface *interface, const struct usb_device_id
     usb_in_buffer = kmalloc(usb_max_size, GFP_KERNEL);
     usb_out_buffer = kmalloc(usb_max_size, GFP_KERNEL);
 
-<<<<<<< HEAD
     // Chama a função para configurar a porta serial antes de usar
-=======
->>>>>>> 3526aff (Versão inicial do projeto SmartLamp)
     ret = smartlamp_config_serial(smartlamp_device);
     if (ret)
     {
@@ -136,28 +98,17 @@ static int usb_probe(struct usb_interface *interface, const struct usb_device_id
         return ret;
     }
 
-<<<<<<< HEAD
     // TASK 2.1.2 Leitura de dados periódicos enviados pelo firmware
     // O firmware envia RES GET_LDR Z automaticamente a cada 2 segundos
     // Descomente as linhas abaixo após implementar usb_read_serial
-    // ret = usb_read_serial();
-    // if (ret >= 0) {
-    //     printk(KERN_INFO "SmartLamp: Valor do LDR recebido: %d\n", ret);
-    // }
-=======
-    // TASK 2.1.2: Tenta ler o LDR automaticamente ao conectar
     ret = usb_read_serial();
     if (ret >= 0) {
         printk(KERN_INFO "SmartLamp: Valor do LDR recebido: %d\n", ret);
-    } else {
-        printk(KERN_WARNING "SmartLamp: Falha ao ler LDR (código %d)\n", ret);
     }
->>>>>>> 3526aff (Versão inicial do projeto SmartLamp)
 
     return 0;
 }
 
-<<<<<<< HEAD
 // Executado quando o dispositivo USB é desconectado da USB
 static void usb_disconnect(struct usb_interface *interface) {
     printk(KERN_INFO "SmartLamp: Dispositivo desconectado.\n");
@@ -168,28 +119,15 @@ static void usb_disconnect(struct usb_interface *interface) {
 // Envia um comando para o dispositivo USB
 // Exemplo de uso: usb_write_serial("SET_LED", 80);
 // Exemplo de uso: usb_write_serial("GET_LDR", 0);
-=======
-static void usb_disconnect(struct usb_interface *interface) {
-    printk(KERN_INFO "SmartLamp: Dispositivo desconectado.\n");
-    kfree(usb_in_buffer);
-    kfree(usb_out_buffer);
-}
-
->>>>>>> 3526aff (Versão inicial do projeto SmartLamp)
 static int usb_write_serial(char *cmd, int param) {
     int ret, actual_size;
 
     printk(KERN_INFO "SmartLamp: Enviando comando: %s %d\n", cmd, param);
-<<<<<<< HEAD
 
     // Formata o comando no buffer
     sprintf(usb_out_buffer, "%s %d\n", cmd, param);
 
     // Envia o comando pela porta serial
-=======
-    sprintf(usb_out_buffer, "%s %d\n", cmd, param);
-
->>>>>>> 3526aff (Versão inicial do projeto SmartLamp)
     ret = usb_bulk_msg(smartlamp_device, usb_sndbulkpipe(smartlamp_device, usb_out),
                        usb_out_buffer, strlen(usb_out_buffer), &actual_size, 1000);
     if (ret) {
@@ -201,7 +139,6 @@ static int usb_write_serial(char *cmd, int param) {
     return 0;
 }
 
-<<<<<<< HEAD
 // Lê uma linha completa da porta serial (até encontrar '\n')
 // Retorna o valor numérico da resposta ou -1 em caso de erro
 // Exemplo de resposta: "RES GET_LDR 450\n" -> retorna 450
@@ -210,6 +147,7 @@ static int usb_read_serial(void) {
     int ret, actual_size;
     int recv_size = 0;  // Quantidade de caracteres já recebidos em recv_line
     int i;
+    int valor;
 
     printk(KERN_INFO "SmartLamp: Aguardando resposta do dispositivo...\n");
 
@@ -225,21 +163,16 @@ static int usb_read_serial(void) {
     // - Cuidado com buffer overflow: verifique recv_size < MAX_RECV_LINE
     // - Defina um timeout adequado (ex: 2000ms)
     // - Após receber a linha completa, extraia o valor numérico com sscanf
-=======
-static int usb_read_serial(void) {
-    int ret, actual_size;
-    int recv_size = 0;
-    int i;
-    int valor;
 
-    printk(KERN_INFO "SmartLamp: Aguardando resposta do dispositivo...\n");
-
-    // Loop para ler bytes até encontrar '\n'
     while (recv_size < MAX_RECV_LINE - 1) {
-        // Lê um bloco de dados da USB
+
+        // Lê dados da porta USB
         ret = usb_bulk_msg(smartlamp_device,
                            usb_rcvbulkpipe(smartlamp_device, usb_in),
-                           usb_in_buffer, usb_max_size, &actual_size, 2000);
+                           usb_in_buffer,
+                           usb_max_size,
+                           &actual_size,
+                           2000);
 
         if (ret < 0) {
             printk(KERN_ERR "SmartLamp: Erro na leitura USB (código %d)\n", ret);
@@ -251,33 +184,46 @@ static int usb_read_serial(void) {
             return -1;
         }
 
-        // Copia os dados recebidos para recv_line
+        // Copia os dados recebidos para o buffer da mensagem
         for (i = 0; i < actual_size && recv_size < MAX_RECV_LINE - 1; i++) {
+
             recv_line[recv_size++] = usb_in_buffer[i];
-            
-            // Se encontrou '\n', finaliza a string e processa
+
+            // Encontrou o final da mensagem
             if (usb_in_buffer[i] == '\n') {
-                recv_line[recv_size] = '\0'; // Finaliza a string
+
+                // Finaliza a string
+                recv_line[recv_size] = '\0';
+
                 printk(KERN_INFO "SmartLamp: Linha recebida: %s", recv_line);
 
-                // Tenta extrair o valor numérico da resposta
+                // Extrai o valor da resposta:
+                // Exemplo:
+                // "RES GET_LDR 450\n"
+                // valor = 450
                 if (sscanf(recv_line, "RES GET_LDR %d", &valor) == 1) {
+
                     printk(KERN_INFO "SmartLamp: Valor extraído: %d\n", valor);
+
                     return valor;
-                } else {
-                    printk(KERN_WARNING "SmartLamp: Formato inválido: %s", recv_line);
+                }
+                else {
+                    printk(KERN_WARNING 
+                           "SmartLamp: Formato de resposta inválido: %s",
+                           recv_line);
+
                     return -1;
                 }
             }
         }
 
-        // Se o buffer encheu sem encontrar '\n', algo está errado
+        // Proteção contra estouro do buffer
         if (recv_size >= MAX_RECV_LINE - 1) {
-            printk(KERN_ERR "SmartLamp: Buffer cheio sem encontrar '\\n'\n");
+            printk(KERN_ERR 
+                   "SmartLamp: Buffer cheio sem encontrar '\\n'\n");
             return -1;
         }
     }
->>>>>>> 3526aff (Versão inicial do projeto SmartLamp)
 
     return -1;
 }
