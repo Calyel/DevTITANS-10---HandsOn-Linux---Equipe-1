@@ -137,6 +137,22 @@ Depois que o driver e o firmware estiverem configurados, você poderá interagir
     ```sh
     sudo rmmod smartlamp
     ```
+    ## Documentação Completa
+
+Para mais detalhes sobre o desenvolvimento do projeto, consulte a **Wiki** do repositório:
+
+🔗 [Wiki do SmartLamp](https://github.com/Calyel/DevTITANS-10---HandsOn-Linux---Equipe-1/wiki)
+
+A Wiki contém os relatórios detalhados de cada tarefa:
+
+- [Tarefa 1 - Montar o protótipo ESP32 e firmware](https://github.com/Calyel/DevTITANS-10---HandsOn-Linux---Equipe-1/wiki/1-%E2%80%90-Montar-o-prototipo-ESP32-e-firmware-a-partir-das-especifica%C3%A7%C3%B5es)
+- [Tarefa 2 - Compilar e rodar o driver mínimo](https://github.com/Calyel/DevTITANS-10---HandsOn-Linux---Equipe-1/wiki/2-%E2%80%90-Compilar-e-rodar-o-driver-m%C3%ADnimo-no-notebook)
+- [Tarefa 2.1.2 - Fazer o driver ler uma mensagem pela porta serial](https://github.com/Calyel/DevTITANS-10---HandsOn-Linux---Equipe-1/wiki/2.1.2--%E2%80%90-Fazer-o-driver-ler-uma-mensagem-pela-porta-serial)
+- [Tarefa 2.2 - Fazer o driver escrever uma mensagem pela porta serial](https://github.com/Calyel/DevTITANS-10---HandsOn-Linux---Equipe-1/wiki/2.2-%E2%80%90-Fazer-o-driver-escrever-uma-mensagem-pela-porta-serial)
+- [Tarefa 2.3 - Sysfs no driver](https://github.com/Calyel/DevTITANS-10---HandsOn-Linux---Equipe-1/wiki/2.3-%E2%80%90-Sysfs-no-driver)
+- [Tarefa 4 ‐ Finalizar o Repositório](https://github.com/Calyel/DevTITANS-10---HandsOn-Linux---Equipe-1/wiki/4-%E2%80%90-Finalizar-o-Reposit%C3%B3rio)
+
+  ---
     
 ## Contato
 
