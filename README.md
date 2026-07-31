@@ -18,16 +18,17 @@ Bem-vindo ao repositório da Equipe 0X do HandsON de Linux do DevTITANS! Este pr
 ## Contribuidores
 
 <a href="https://github.com/marcianocamposgit"> <img src="https://github.com/marcianocamposgit.png" width="180" alt="Marciano Campos">
-<img src="https://github.com/DevTITANS05/Hands-On-Linux-fork-/assets/21023906/85e61f3e-476c-47a4-82d5-4054e856c67b" width="180" >
-<img src="https://github.com/DevTITANS05/Hands-On-Linux-fork-/assets/21023906/85e61f3e-476c-47a4-82d5-4054e856c67b" width="180" >
-<img src="https://github.com/DevTITANS05/Hands-On-Linux-fork-/assets/21023906/85e61f3e-476c-47a4-82d5-4054e856c67b" width="180" >
-<img src="https://github.com/DevTITANS05/Hands-On-Linux-fork-/assets/21023906/85e61f3e-476c-47a4-82d5-4054e856c67b" width="180" >
+<a href="https://github.com/Calyel"> <img src="https://github.com/Calyel.png" width="180" alt="Calyel">
+<a href="https://github.com/gab-rielly"> <img src="https://github.com/gab-rielly.png" width="180" alt="Gab Rielly">
+<a href="https://github.com/Kevin-Freitas"> <img src="https://github.com/Kevin-Freitas.png" width="180" alt="Kevin Freitas">
+<a href="https://github.com/emersonsena"> <img src="https://github.com/emersonsena.png" width="180" alt="Emerson Sena">
 
-- **Marciano Campos 01:** Desenvolvedor do Firmware e Mantenedor do Projeto
-- **Nome do(a) Aluno(a) 02:** Desenvolvedor do Firmware
-- **Nome do(a) Aluno(a) 03:** Desenvolvedor do Driver Linux
-- **Nome do(a) Aluno(a) 04:** Desenvolvedor do Driver Linux
-- **Marciano Campos 05:** Desenvolvedor do Firmware e Escritor da Documentação
+  - **Marciano Campos:** Desenvolvedor de Firmware e mantenedor do projeto.
+  - **Calyel Junio De Andrade Dos Santos:** Desenvolvedor de Firmware, do driver Linux e responsável pela documentação técnica.
+  - **Gabrielly Ferreira Rodrigues:** Desenvolvedora do driver Linux e de Firmware.
+  - **Kevin Carlos Tavares De Freitas:** Desenvolvedor de Firmware e responsável pela montagem e integração do circuito.
+  - **Emerson Sena De Souza:** Desenvolvedor de Firmware e responsável pela revisão e validação do código-fonte.
+
 
 ## Introdução
 
